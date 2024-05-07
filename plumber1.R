@@ -16,9 +16,5 @@ rabimoResult <- function() {
   # Run the kwb.rabimo::run_rabimo function
   rabimo_result <- kwb.rabimo::run_rabimo(data, config)
 
-  # Convert the result to JSON format
-  json_result <- toJSON(rabimo_result, pretty = FALSE)
-
-  # Return the JSON result
-  json_result
+  return(rabimo_result)
 }
