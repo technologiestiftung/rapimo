@@ -17,11 +17,7 @@ rabimoResult <- function() {
   rabimo_result <- kwb.rabimo::run_rabimo(data, config)
 
   # Convert the result to JSON format
-    # Check if rabimo_result is a string and convert it to a data structure
-  if (is.character(rabimo_result)) {
-    rabimo_result <- jsonlite::fromJSON(rabimo_result)
-  }
-  json_result <- toJSON(rabimo_result, pretty = TRUE)
+  json_result <- toJSON(rabimo_result, pretty = FALSE)
 
   # Return the JSON result
   json_result
