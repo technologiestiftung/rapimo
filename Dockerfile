@@ -21,7 +21,7 @@ RUN apt-get update && \
 # Install necessary R packages
 RUN R -e "install.packages('plumber', repos='http://cran.rstudio.com/', lib='/usr/local/lib/R/site-library')" && \
     R -e "install.packages(c('jsonlite', 'remotes'))" && \
-    R -e "remotes::install_github('KWB-R/kwb.rabimo', lib='/usr/local/lib/R/site-library')"
+    R -e "remotes::install_github('KWB-R/kwb.rabimo@dev', lib='/usr/local/lib/R/site-library')"
 
 # Copy the R scripts into the container
 COPY plumber1.R .

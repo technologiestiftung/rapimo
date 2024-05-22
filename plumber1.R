@@ -4,17 +4,23 @@ library(kwb.rabimo)
 
 #* @apiTitle  Rabimo Result
 #* @apiDescription An API That Computes Rabimo Result
-#* @get /rabimo_result
-rabimoResult <- function() {
-  # Load Berlin data from the R-wrapper package kwb.abimo
-  data <- kwb.abimo::abimo_input_2019
 
-  # Provide Abimo's default configuration
-  abimo_config <- kwb.abimo:::read_config()
-  config <- kwb.rabimo::abimo_config_to_config(abimo_config)
+#* @get /rabimo_result
+calculate <- function() {
+  # Load old Berlin data from the R-wrapper package kwb.abimo
+  old_data <- kwb.abimo::abimo_input_2019
+
+  # Convert the original Abimo inputs to the new format
+  new_inputs <- kwb.rabimo::prepare_berlin_inputs(
+    data = old_data,
+    config_file = kwb.abimo::default_config()
+  )
 
   # Run the kwb.rabimo::run_rabimo function
-  rabimo_result <- kwb.rabimo::run_rabimo(data, config)
+  rabimo_result <- kwb.rabimo::run_rabimo(
+    data = new_inputs$data,
+    config = new_inputs$config
+  )
 
   return(rabimo_result)
 }
