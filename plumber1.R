@@ -23,6 +23,25 @@ calculateAll <- function() {
 }
 
 
+#* @get /peek_input
+#* @param n_records:int Number of records to show
+#* @serializer json list(na="string") # Ensure NA values are handled appropriately
+peekInput <- function(n_records) {
+  # Load Berlin data and config
+  data <- kwb.rabimo::rabimo_inputs_2020$data
+
+  # Check if n_records is greater than the number of available records
+  if (n_records > nrow(data)) {
+    n_records <- nrow(data) # Limit to available records
+  }
+
+  # Select the first n_records from the dataframe
+  result <- head(data, n_records)
+
+  return(result)
+}
+
+
 #* @post /calculate_multiblock
 #* @param new_values_json:json New values
 calculateMultiblock <- function(new_values_json) {
