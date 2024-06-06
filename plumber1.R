@@ -60,12 +60,22 @@ calculateMultiblock <- function(input) {
 
   # Check if all required columns are present
   missing_columns <- setdiff(required_columns, names(input))
-
   if (length(missing_columns) > 0) {
     # Return a 400 Bad Request error response
     response <- list(
       error = "400 - Bad Request",
-      message = paste("Missing column(s):", paste(missing_columns, collapse = ", "))
+      message = paste("Missing fields for all records:", paste(missing_columns, collapse = ", "))
+    )
+    return(response)
+  }
+
+  # Check for missing values in required columns
+  missing_values <- sapply(input[required_columns], function(column) any(is.na(column)))
+  if (any(missing_values)) {
+    missing_columns <- names(which(missing_values))
+    response <- list(
+      error = "400 - Bad Request",
+      message = paste("Missing fields for some records:", paste(missing_columns, collapse = ", "))
     )
     return(response)
   }
