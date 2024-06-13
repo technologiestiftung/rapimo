@@ -159,3 +159,39 @@ calculateAllDeltaW <- function() {
 
   return(delta_w)
 }
+
+
+#* @post /calculate_multiblock_delta_w
+#* @param input:json Input for a selection of blocks in JSON format
+calculateMultiblockDeltaW <- function(input) {
+  # Load Berlin data and config
+  input_urban <- fromJSON(input)
+  config <- kwb.rabimo::rabimo_inputs_2020$config
+
+  # Validate data
+  input_urban <- kwb.rabimo:::check_or_convert_data_types(
+    data = input_urban,
+    types = kwb.rabimo:::get_expected_data_type(),
+    convert = TRUE
+  )
+
+  # Transform the data to its natural equivalent
+  type <- "undeveloped"
+  input_natural <- kwb.rabimo::data_to_natural(data = input_urban, type = type)
+
+  # Get abimo outputs for urban and natural scenarios
+  output_urban <- kwb.rabimo::run_rabimo(
+    data = input_urban,
+    config = config
+  )
+
+  output_natural <- kwb.rabimo::run_rabimo(
+    data = input_natural,
+    config = config
+  )
+
+  # Calculate Delta-W
+  delta_w <- kwb.rabimo::calculate_delta_w(natural = output_natural, urban = output_urban)
+
+  return(delta_w)
+}
