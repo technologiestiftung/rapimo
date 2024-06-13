@@ -140,15 +140,8 @@ calculateAllDeltaW <- function() {
   input_urban <- kwb.rabimo::rabimo_inputs_2020$data
   config <- kwb.rabimo::rabimo_inputs_2020$config
 
-  # Transform the data to its natural equivalent
-  input_natural <- kwb.rabimo:::check_or_convert_data_types(
-    data = input_urban,
-    types = kwb.rabimo:::get_expected_data_type(),
-    convert = TRUE
-  )
-
   type <- "undeveloped"
-  input_natural <- kwb.rabimo::data_to_natural(data = input_natural, type = type)
+  input_natural <- kwb.rabimo::data_to_natural(data = input_urban, type = type)
 
   # Get abimo outputs for urban and natural scenarios
   output_urban <- kwb.rabimo::run_rabimo(
