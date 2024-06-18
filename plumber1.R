@@ -43,7 +43,9 @@ peekInput <- function(n_records) {
 
 
 #* @post /calculate_multiblock
-#* @param input:json Input for a selection of blocks in JSON format
+#* @param input:json Input should be a JSON array of objects,
+# each representing a block with fields such as code, prec_yr, prec_s,
+# epot_yr, epot_s, district, total_area, and other related attributes.
 calculateMultiblock <- function(input) {
   # Convert JSON to dataframe
   input <- fromJSON(input)
@@ -95,7 +97,10 @@ calculateAllDeltaW <- function() {
 
 
 #* @post /calculate_multiblock_delta_w
-#* @param input:json Input for a selection of blocks in JSON format
+#* @param input:json Input should be a JSON array of objects,
+# each representing a block with fields such as code, prec_yr, prec_s,
+# epot_yr, epot_s, district, total_area, and other related attributes.
+
 calculateMultiblockDeltaW <- function(input) {
   # Load Berlin data and config
   input_urban <- fromJSON(input)
