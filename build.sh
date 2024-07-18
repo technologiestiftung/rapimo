@@ -1,1 +1,1 @@
-docker build -t rapimo -f Dockerfile.plumber .
+docker build -t rapimo -f Dockerfile.rapimo .
