@@ -1,0 +1,22 @@
+version: '3'
+services:
+  rapimo:
+    build:
+      context: .
+      dockerfile: Dockerfile.rapimo
+    container_name: rapimo
+    ports:
+      - "8000:8000"
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - rapimo
