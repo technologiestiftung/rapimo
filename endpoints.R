@@ -43,12 +43,15 @@ peekInput <- function(n_records) {
 
 
 #* @post /calculate_multiblock
-#* @param input:json Input should be a JSON array of objects,
+#* @serializer json
+#* @param input:object Input should be a JSON of nested arrays,
 # each representing a block with fields such as code, prec_yr, prec_s,
 # epot_yr, epot_s, district, total_area, and other related attributes.
-calculateMultiblock <- function(input) {
+#* @response 200 Returns the processed data
+calculateMultiblock <- function(req) {
   # Convert JSON to dataframe
-  input <- fromJSON(input)
+  input <- fromJSON(req$postBody)
+
   # Validate data
   input <- kwb.rabimo:::check_or_convert_data_types(
     data = input,
@@ -97,13 +100,14 @@ calculateAllDeltaW <- function() {
 
 
 #* @post /calculate_multiblock_delta_w
-#* @param input:json Input should be a JSON array of objects,
+#* @serializer json
+#* @param input:object Input should be a JSON of nested arrays,
 # each representing a block with fields such as code, prec_yr, prec_s,
 # epot_yr, epot_s, district, total_area, and other related attributes.
-
-calculateMultiblockDeltaW <- function(input) {
+#* @response 200 Returns the processed data
+calculateMultiblockDeltaW <- function(req) {
   # Load Berlin data and config
-  input_urban <- fromJSON(input)
+  input_urban <- fromJSON(req$postBody)
   config <- kwb.rabimo::rabimo_inputs_2020$config
 
   # Validate data
