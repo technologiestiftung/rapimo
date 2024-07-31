@@ -1,0 +1,8 @@
+# Use the official Nginx image from Docker Hub
+FROM nginx:latest
+
+# Copy your custom Nginx configuration file
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose ports 80 and 443
+EXPOSE 80 443

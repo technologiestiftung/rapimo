@@ -24,11 +24,11 @@ RUN R -e "install.packages('plumber', repos='http://cran.rstudio.com/', lib='/us
     R -e "remotes::install_github('KWB-R/kwb.rabimo@dev', lib='/usr/local/lib/R/site-library')"
 
 # Copy the R scripts into the container
-COPY plumber1.R .
-COPY api_script.R .
+COPY endpoints.R .
+COPY run_api.R .
 
 # Expose the port that Plumber will run on
 EXPOSE 8000
 
 # Run Plumber when the container starts
-ENTRYPOINT ["R", "-e", "plumber::plumb('plumber1.R')$run(host = '0.0.0.0', port = 8000)"]
+ENTRYPOINT ["R", "-e", "plumber::plumb('endpoints.R')$run(host = '0.0.0.0', port = 8000)"]

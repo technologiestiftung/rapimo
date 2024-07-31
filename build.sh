@@ -1,1 +1,1 @@
-docker build -t rapimo .
+docker build -t rapimo -f Dockerfile.rapimo .
