@@ -44,31 +44,71 @@ peekInput <- function(n_records) {
 
 #* @post /calculate_multiblock
 #* @serializer json
-#* @param input:object Input should be a JSON of nested arrays,
-# each representing a block with fields such as code, prec_yr, prec_s,
-# epot_yr, epot_s, district, total_area, and other related attributes.
-#* @response 200 Returns the processed data
+#* @param input:object Input should be a JSON with the following format:
+#* [
+#*     {
+#*        features:
+#*         {
+#*           feature_1: x1,
+#*           feature_2: x2,
+#*           feature_3: x3
+#*         },
+#*       targets:
+#*         {
+#*           green_roof: 0.35,
+#*           to_swale: 0.2,
+#*           pvd: 0.17,
+#*         }
+#*     },
+#* ]
 calculateMultiblock <- function(req) {
   # Convert JSON to dataframe
   input <- fromJSON(req$postBody)
 
-  # Validate data
-  input <- kwb.rabimo:::check_or_convert_data_types(
-    data = input,
-    types = kwb.rabimo:::get_expected_data_type(),
-    convert = TRUE
-  )
+  # Initialize an empty list to hold the new input
+  new_input <- list()
 
-  # Load default configuration
-  config <- kwb.rabimo::rabimo_inputs_2020$config
+  # Iterate over each row in the input data
+  for (row in input) {
+    # Create an empty list to store new features
+    new_features <- list()
 
-  # Run abimo calculations
-  rabimo_result <- kwb.rabimo::run_rabimo(
-    data = input,
-    config = config
-)
+    # Copy all features except the targets
+    # TODO: new_features is empty, debug
+    for (feature in names(row$features)) {
+      print("---")
+      print(feature)
+      if (!(feature %in% c("green_roof", "to_swale", "pvd"))) {
+        new_features[[feature]] <- row$features[[feature]]
+      }
+    }
 
-  return(rabimo_result)
+    # Add the targets to new_features
+    for (target in names(row$targets)) {
+      new_features[[target]] <- row$targets[[target]]
+    }
+
+    # Append the modified features to new_input
+    new_input[[length(new_input) + 1]] <- new_features
+  }
+
+#   # Validate data
+#   new_input <- kwb.rabimo:::check_or_convert_data_types(
+#     data = new_input,
+#     types = kwb.rabimo:::get_expected_data_type(),
+#     convert = TRUE
+#   )
+#
+#   # Load default configuration
+#   config <- kwb.rabimo::rabimo_inputs_2020$config
+#
+#   # Run abimo calculations
+#   rabimo_result <- kwb.rabimo::run_rabimo(
+#     data = new_input,
+#     config = config
+# )
+
+  return(new_features)
 }
 
 
