@@ -1,6 +1,7 @@
 library(dplyr)
 library(jsonlite)
 library(kwb.rabimo)
+library(logger)
 library(plumber)
 
 
@@ -55,9 +56,9 @@ peekInput <- function(n_records) {
 #*         },
 #*       targets:
 #*         {
-#*           green_roof: 0.35,
-#*           to_swale: 0.2,
-#*           pvd: 0.17,
+#*           new_green_roof: 0.35,
+#*           new_to_swale: 0.2,
+#*           new_pvd: 0.17,
 #*         }
 #*     },
 #* ]
@@ -68,47 +69,43 @@ calculateMultiblock <- function(req) {
   # Initialize an empty list to hold the new input
   new_input <- list()
 
-  # Iterate over each row in the input data
-  for (row in input) {
-    # Create an empty list to store new features
-    new_features <- list()
+  # Iterate over each row in the input data frame
+  for (i in 1:nrow(input)) {
+    # Access the i-th row of the features data frame
+    features_row <- input$features[i, ]
 
-    # Copy all features except the targets
-    # TODO: new_features is empty, debug
-    for (feature in names(row$features)) {
-      print("---")
-      print(feature)
-      if (!(feature %in% c("green_roof", "to_swale", "pvd"))) {
-        new_features[[feature]] <- row$features[[feature]]
-      }
-    }
+    # Access the i-th row of the targets data frame (if needed)
+    targets_row <- input$targets[i, ]
 
-    # Add the targets to new_features
-    for (target in names(row$targets)) {
-      new_features[[target]] <- row$targets[[target]]
-    }
+    # Update features with values in targets
+    features_row$green_roof <- targets_row$new_green_roof
+    features_row$to_swale <- targets_row$new_to_swale
+    features_row$pvd <- targets_row$new_pvd
 
-    # Append the modified features to new_input
-    new_input[[length(new_input) + 1]] <- new_features
+    # Append the modified features to the new_inputs list
+    new_input[[i]] <- features_row
   }
 
-#   # Validate data
-#   new_input <- kwb.rabimo:::check_or_convert_data_types(
-#     data = new_input,
-#     types = kwb.rabimo:::get_expected_data_type(),
-#     convert = TRUE
-#   )
-#
-#   # Load default configuration
-#   config <- kwb.rabimo::rabimo_inputs_2020$config
-#
-#   # Run abimo calculations
-#   rabimo_result <- kwb.rabimo::run_rabimo(
-#     data = new_input,
-#     config = config
-# )
+  # Convert the list of modified features to a data frame
+  new_input <- do.call(rbind, new_input)
 
-  return(new_features)
+  # Validate data
+  new_input <- kwb.rabimo:::check_or_convert_data_types(
+    data = new_input,
+    types = kwb.rabimo:::get_expected_data_type(),
+    convert = TRUE
+  )
+
+  # Load default configuration
+  config <- kwb.rabimo::rabimo_inputs_2020$config
+
+  # Run abimo calculations
+  rabimo_result <- kwb.rabimo::run_rabimo(
+    data = new_input,
+    config = config
+)
+
+  return(rabimo_result)
 }
 
 
