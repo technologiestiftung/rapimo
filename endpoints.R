@@ -46,15 +46,21 @@ peekInput <- function(n_records) {
 #* @post /calculate_multiblock
 #* @serializer json
 #* @param input:object Input should be a JSON with the following format:
-#* [
-#*     {
-#*        features:
-#*         {
-#*           feature_1: x1,
-#*           feature_2: x2,
-#*           feature_3: x3
-#*         },
-#*       targets:
+#* {
+#*     features:
+#*         [
+#*             {
+#*                 feature_1: x1,
+#*                 feature_2: x2,
+#*                 feature_3: x3
+#*             },
+#*             {
+#*                 feature_1: x1,
+#*                 feature_2: x2,
+#*                 feature_3: x3
+#*             }
+#*         ],
+#*     targets:
 #*         {
 #*           new_green_roof: 0.35,
 #*           new_to_swale: 0.2,
@@ -70,17 +76,14 @@ calculateMultiblock <- function(req) {
   new_input <- list()
 
   # Iterate over each row in the input data frame
-  for (i in 1:nrow(input)) {
+  for (i in 1:nrow(input$features)) {
     # Access the i-th row of the features data frame
     features_row <- input$features[i, ]
 
-    # Access the i-th row of the targets data frame (if needed)
-    targets_row <- input$targets[i, ]
-
     # Update features with values in targets
-    features_row$green_roof <- targets_row$new_green_roof
-    features_row$to_swale <- targets_row$new_to_swale
-    features_row$pvd <- targets_row$new_pvd
+    features_row$green_roof <- input$targets$new_green_roof
+    features_row$to_swale <- input$targets$new_to_swale
+    features_row$pvd <- input$targets$new_pvd
 
     # Append the modified features to the new_inputs list
     new_input[[i]] <- features_row
