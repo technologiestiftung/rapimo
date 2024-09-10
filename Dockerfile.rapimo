@@ -1,5 +1,5 @@
 # Use the official R base image
-FROM r-base:4.1.0
+FROM r-base:latest
 
 # Set the working directory in the container
 WORKDIR /app
