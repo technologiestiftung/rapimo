@@ -72,29 +72,13 @@ calculateMultiblock <- function(req) {
   # Convert JSON to dataframe
   input <- fromJSON(req$postBody)
 
-  # Initialize an empty list to hold the new input
-  new_input <- list()
-
-  # Iterate over each row in the input data frame
-  for (i in 1:nrow(input$features)) {
-    # Access the i-th row of the features data frame
-    features_row <- input$features[i, ]
-
-    # Update features with values in targets
-    features_row$green_roof <- input$targets$new_green_roof
-    features_row$to_swale <- input$targets$new_to_swale
-    features_row$pvd <- input$targets$new_pvd
-
-    # Append the modified features to the new_inputs list
-    new_input[[i]] <- features_row
-  }
-
-  # Convert the list of modified features to a data frame
-  new_input <- do.call(rbind, new_input)
+  # Get features and targets
+  features <- input$features
+  targets <- input$targets
 
   # Validate data
   new_input <- kwb.rabimo:::check_or_convert_data_types(
-    data = new_input,
+    data = features,
     types = kwb.rabimo:::get_expected_data_type(),
     convert = TRUE
   )
@@ -103,8 +87,9 @@ calculateMultiblock <- function(req) {
   config <- kwb.rabimo::rabimo_inputs_2020$config
 
   # Run abimo calculations
-  rabimo_result <- kwb.rabimo::run_rabimo(
-    data = new_input,
+  rabimo_result <- kwb.rabimo::run_rabimo_with_measures(
+    blocks = new_input,
+    measures = targets,
     config = config
 )
 
