@@ -183,7 +183,6 @@ calculateMultiblockDeltaW <- function(req) {
   input_natural <- kwb.rabimo::data_to_natural(data = input_urban, type = type)
 
   # Get abimo outputs for urban and natural scenarios
-
   output_urban <- kwb.rabimo::run_rabimo(
     data = input_urban,
     config = config
