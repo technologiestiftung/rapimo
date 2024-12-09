@@ -8,6 +8,7 @@ library(plumber)
 #* @apiTitle  Rabimo Result
 #* @apiDescription An API That Computes Rabimo Result
 
+# OBSOLETE
 #* @get /calculate_all
 calculateAll <- function() {
   # Load Berlin data and config
@@ -24,6 +25,7 @@ calculateAll <- function() {
 }
 
 
+# OBSOLETE
 #* @get /peek_input
 #* @param n_records:int Number of records to show
 #* @serializer json list(na="string") # Ensure NA values are handled appropriately
@@ -72,29 +74,13 @@ calculateMultiblock <- function(req) {
   # Convert JSON to dataframe
   input <- fromJSON(req$postBody)
 
-  # Initialize an empty list to hold the new input
-  new_input <- list()
-
-  # Iterate over each row in the input data frame
-  for (i in 1:nrow(input$features)) {
-    # Access the i-th row of the features data frame
-    features_row <- input$features[i, ]
-
-    # Update features with values in targets
-    features_row$green_roof <- input$targets$new_green_roof
-    features_row$to_swale <- input$targets$new_to_swale
-    features_row$pvd <- input$targets$new_pvd
-
-    # Append the modified features to the new_inputs list
-    new_input[[i]] <- features_row
-  }
-
-  # Convert the list of modified features to a data frame
-  new_input <- do.call(rbind, new_input)
+  # Get features and targets
+  features <- input$features
+  targets <- input$targets
 
   # Validate data
-  new_input <- kwb.rabimo:::check_or_convert_data_types(
-    data = new_input,
+  data_urban <- kwb.rabimo:::check_or_convert_data_types(
+    data = features,
     types = kwb.rabimo:::get_expected_data_type(),
     convert = TRUE
   )
@@ -103,15 +89,49 @@ calculateMultiblock <- function(req) {
   config <- kwb.rabimo::rabimo_inputs_2020$config
 
   # Run abimo calculations
-  rabimo_result <- kwb.rabimo::run_rabimo(
-    data = new_input,
+  output_urban <- kwb.rabimo::run_rabimo_with_measures(
+    blocks = data_urban,
+    measures = targets,
     config = config
-)
+  )
 
-  return(rabimo_result)
+  # Transform the data to its natural equivalent
+  type <- "undeveloped"
+  data_natural <- kwb.rabimo::data_to_natural(data = data_urban, type = type)
+
+  # Run abimo calculations for the natural scenario
+  output_natural <- kwb.rabimo::run_rabimo(
+    data = data_natural,
+    config = config
+  )
+
+  # Change column names. 
+  # This is a temporary fix until KWB updates calculate_delta_w() to use new column names
+  output_urban_renamed <- output_urban %>%
+    rename(
+      "evaporation" = "evapor",
+      "infiltration" = "infiltr",
+      "surface_runoff" = "runoff"
+    )
+
+  output_natural_renamed <- output_natural %>%
+    rename(
+      "evaporation" = "evapor",
+      "infiltration" = "infiltr",
+      "surface_runoff" = "runoff"
+    )
+
+  # Calculate Delta-W
+  delta_w <- kwb.rabimo::calculate_delta_w(natural = output_natural_renamed, urban = output_urban_renamed)
+
+  # Add Delta-W to the Abimo output for the urban scenario
+  merged_output <- merge(output_urban, delta_w, by = "code", all.x = TRUE)
+
+  return(merged_output)
 }
 
 
+# OBSOLETE
 #* @get /calculate_all_delta_w
 calculateAllDeltaW <- function() {
   # Load Berlin data and config
@@ -139,6 +159,7 @@ calculateAllDeltaW <- function() {
 }
 
 
+# OBSOLETE
 #* @post /calculate_multiblock_delta_w
 #* @serializer json
 #* @param input:object Input should be a JSON of nested arrays,
@@ -159,19 +180,21 @@ calculateMultiblockDeltaW <- function(req) {
 
   # Transform the data to its natural equivalent
   type <- "undeveloped"
+  print(input_urban)
   input_natural <- kwb.rabimo::data_to_natural(data = input_urban, type = type)
 
   # Get abimo outputs for urban and natural scenarios
+  cat("1")
   output_urban <- kwb.rabimo::run_rabimo(
     data = input_urban,
     config = config
   )
-
+  cat("2")
   output_natural <- kwb.rabimo::run_rabimo(
     data = input_natural,
     config = config
   )
-
+  cat("3")
   # Calculate Delta-W
   delta_w <- kwb.rabimo::calculate_delta_w(natural = output_natural, urban = output_urban)
 
