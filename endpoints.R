@@ -180,21 +180,20 @@ calculateMultiblockDeltaW <- function(req) {
 
   # Transform the data to its natural equivalent
   type <- "undeveloped"
-  print(input_urban)
   input_natural <- kwb.rabimo::data_to_natural(data = input_urban, type = type)
 
   # Get abimo outputs for urban and natural scenarios
-  cat("1")
+
   output_urban <- kwb.rabimo::run_rabimo(
     data = input_urban,
     config = config
   )
-  cat("2")
+
   output_natural <- kwb.rabimo::run_rabimo(
     data = input_natural,
     config = config
   )
-  cat("3")
+
   # Calculate Delta-W
   delta_w <- kwb.rabimo::calculate_delta_w(natural = output_natural, urban = output_urban)
 
