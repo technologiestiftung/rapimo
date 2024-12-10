@@ -78,6 +78,15 @@ calculateMultiblock <- function(req) {
   features <- input$features
   targets <- input$targets
 
+  targets_map <- c(
+    new_green_roof = "green_roof",
+    new_to_swale = "to_swale",
+    new_unpaved = "unpaved"
+  )
+
+  # Rename the list keys
+  names(targets) <- targets_map[names(targets)]
+
   # Validate data
   data_urban <- kwb.rabimo:::check_or_convert_data_types(
     data = features,
