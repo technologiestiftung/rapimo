@@ -114,24 +114,8 @@ calculateMultiblock <- function(req) {
     config = config
   )
 
-  # Change column names. 
-  # This is a temporary fix until KWB updates calculate_delta_w() to use new column names
-  output_urban_renamed <- output_urban %>%
-    rename(
-      "evaporation" = "evapor",
-      "infiltration" = "infiltr",
-      "surface_runoff" = "runoff"
-    )
-
-  output_natural_renamed <- output_natural %>%
-    rename(
-      "evaporation" = "evapor",
-      "infiltration" = "infiltr",
-      "surface_runoff" = "runoff"
-    )
-
   # Calculate Delta-W
-  delta_w <- kwb.rabimo::calculate_delta_w(natural = output_natural_renamed, urban = output_urban_renamed)
+  delta_w <- kwb.rabimo::calculate_delta_w(natural = output_natural, urban = output_urban)
 
   # Add Delta-W to the Abimo output for the urban scenario
   merged_output <- merge(output_urban, delta_w, by = "code", all.x = TRUE)
