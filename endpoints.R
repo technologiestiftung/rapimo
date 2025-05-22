@@ -8,6 +8,7 @@ library(plumber)
 #* @apiTitle  Rabimo Result
 #* @apiDescription An API That Computes Rabimo Result
 
+# OBSOLETE
 #* @get /calculate_all
 calculateAll <- function() {
   # Load Berlin data and config
@@ -24,6 +25,7 @@ calculateAll <- function() {
 }
 
 
+# OBSOLETE
 #* @get /peek_input
 #* @param n_records:int Number of records to show
 #* @serializer json list(na="string") # Ensure NA values are handled appropriately
@@ -64,7 +66,7 @@ peekInput <- function(n_records) {
 #*         {
 #*           new_green_roof: 0.35,
 #*           new_to_swale: 0.2,
-#*           new_pvd: 0.17,
+#*           new_unpaved: 0.17,
 #*         }
 #*     },
 #* ]
@@ -72,29 +74,22 @@ calculateMultiblock <- function(req) {
   # Convert JSON to dataframe
   input <- fromJSON(req$postBody)
 
-  # Initialize an empty list to hold the new input
-  new_input <- list()
+  # Get features and targets
+  features <- input$features
+  targets <- input$targets
 
-  # Iterate over each row in the input data frame
-  for (i in 1:nrow(input$features)) {
-    # Access the i-th row of the features data frame
-    features_row <- input$features[i, ]
+  targets_map <- c(
+    new_green_roof = "green_roof",
+    new_to_swale = "to_swale",
+    new_unpaved = "unpaved"
+  )
 
-    # Update features with values in targets
-    features_row$green_roof <- input$targets$new_green_roof
-    features_row$to_swale <- input$targets$new_to_swale
-    features_row$pvd <- input$targets$new_pvd
-
-    # Append the modified features to the new_inputs list
-    new_input[[i]] <- features_row
-  }
-
-  # Convert the list of modified features to a data frame
-  new_input <- do.call(rbind, new_input)
+  # Rename the list keys
+  names(targets) <- targets_map[names(targets)]
 
   # Validate data
-  new_input <- kwb.rabimo:::check_or_convert_data_types(
-    data = new_input,
+  data_urban <- kwb.rabimo:::check_or_convert_data_types(
+    data = features,
     types = kwb.rabimo:::get_expected_data_type(),
     convert = TRUE
   )
@@ -103,15 +98,33 @@ calculateMultiblock <- function(req) {
   config <- kwb.rabimo::rabimo_inputs_2020$config
 
   # Run abimo calculations
-  rabimo_result <- kwb.rabimo::run_rabimo(
-    data = new_input,
+  output_urban <- kwb.rabimo::run_rabimo_with_measures(
+    blocks = data_urban,
+    measures = targets,
     config = config
-)
+  )
 
-  return(rabimo_result)
+  # Transform the data to its natural equivalent
+  type <- "undeveloped"
+  data_natural <- kwb.rabimo::data_to_natural(data = data_urban, type = type)
+
+  # Run abimo calculations for the natural scenario
+  output_natural <- kwb.rabimo::run_rabimo(
+    data = data_natural,
+    config = config
+  )
+
+  # Calculate Delta-W
+  delta_w <- kwb.rabimo::calculate_delta_w(natural = output_natural, urban = output_urban)
+
+  # Add Delta-W to the Abimo output for the urban scenario
+  merged_output <- merge(output_urban, delta_w, by = "code", all.x = TRUE)
+
+  return(merged_output)
 }
 
 
+# OBSOLETE
 #* @get /calculate_all_delta_w
 calculateAllDeltaW <- function() {
   # Load Berlin data and config
@@ -139,6 +152,7 @@ calculateAllDeltaW <- function() {
 }
 
 
+# OBSOLETE
 #* @post /calculate_multiblock_delta_w
 #* @serializer json
 #* @param input:object Input should be a JSON of nested arrays,
