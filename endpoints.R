@@ -64,9 +64,9 @@ peekInput <- function(n_records) {
 #*         ],
 #*     targets:
 #*         {
-#*           green_roof: 0.35,
-#*           to_swale: 0.2,
-#*           unpaved: 0.17,
+#*           new_green_roof: 0.35,
+#*           new_to_swale: 0.2,
+#*           new_unpaved: 0.17,
 #*         }
 #*     },
 #* ]
