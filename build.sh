@@ -1,1 +1,1 @@
-docker build -t rapimo -f Dockerfile.rapimo .
+docker build --no-cache -t rapimo -f Dockerfile.rapimo .

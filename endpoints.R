@@ -8,6 +8,7 @@ library(plumber)
 #* @apiTitle  Rabimo Result
 #* @apiDescription An API That Computes Rabimo Result
 
+# OBSOLETE
 #* @get /calculate_all
 calculateAll <- function() {
   # Load Berlin data and config
@@ -24,6 +25,7 @@ calculateAll <- function() {
 }
 
 
+# OBSOLETE
 #* @get /peek_input
 #* @param n_records:int Number of records to show
 #* @serializer json list(na="string") # Ensure NA values are handled appropriately
@@ -76,8 +78,17 @@ calculateMultiblock <- function(req) {
   features <- input$features
   targets <- input$targets
 
+  targets_map <- c(
+    new_green_roof = "green_roof",
+    new_to_swale = "to_swale",
+    new_unpaved = "unpaved"
+  )
+
+  # Rename the list keys
+  names(targets) <- targets_map[names(targets)]
+
   # Validate data
-  new_input <- kwb.rabimo:::check_or_convert_data_types(
+  data_urban <- kwb.rabimo:::check_or_convert_data_types(
     data = features,
     types = kwb.rabimo:::get_expected_data_type(),
     convert = TRUE
@@ -87,16 +98,33 @@ calculateMultiblock <- function(req) {
   config <- kwb.rabimo::rabimo_inputs_2020$config
 
   # Run abimo calculations
-  rabimo_result <- kwb.rabimo::run_rabimo_with_measures(
-    blocks = new_input,
+  output_urban <- kwb.rabimo::run_rabimo_with_measures(
+    blocks = data_urban,
     measures = targets,
     config = config
-)
+  )
 
-  return(rabimo_result)
+  # Transform the data to its natural equivalent
+  type <- "undeveloped"
+  data_natural <- kwb.rabimo::data_to_natural(data = data_urban, type = type)
+
+  # Run abimo calculations for the natural scenario
+  output_natural <- kwb.rabimo::run_rabimo(
+    data = data_natural,
+    config = config
+  )
+
+  # Calculate Delta-W
+  delta_w <- kwb.rabimo::calculate_delta_w(natural = output_natural, urban = output_urban)
+
+  # Add Delta-W to the Abimo output for the urban scenario
+  merged_output <- merge(output_urban, delta_w, by = "code", all.x = TRUE)
+
+  return(merged_output)
 }
 
 
+# OBSOLETE
 #* @get /calculate_all_delta_w
 calculateAllDeltaW <- function() {
   # Load Berlin data and config
@@ -124,6 +152,7 @@ calculateAllDeltaW <- function() {
 }
 
 
+# OBSOLETE
 #* @post /calculate_multiblock_delta_w
 #* @serializer json
 #* @param input:object Input should be a JSON of nested arrays,
