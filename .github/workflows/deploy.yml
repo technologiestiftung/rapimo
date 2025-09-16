@@ -44,7 +44,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          dockerfile: Dockerfile.rapimo
+          dockerfile: ../../Dockerfile.rapimo
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
