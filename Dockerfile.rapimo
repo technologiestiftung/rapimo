@@ -21,7 +21,7 @@ RUN apt-get update && \
 # Install necessary R packages
 RUN R -e "install.packages('plumber', repos='http://cran.rstudio.com/', lib='/usr/local/lib/R/site-library')" && \
     R -e "install.packages(c('dplyr', 'jsonlite', 'logger', 'remotes'))" && \
-    R -e "remotes::install_github('KWB-R/kwb.rabimo@webtool_v2.1', lib='/usr/local/lib/R/site-library')"
+    R -e "remotes::install_github('KWB-R/kwb.rabimo@webtool_v2.1')"
 
 # Copy the R scripts into the container
 COPY endpoints.R .
