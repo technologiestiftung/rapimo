@@ -1,0 +1,39 @@
+# Use the official R base image
+FROM r-base:4.4.1
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install necessary system libraries and build tools
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    automake \
+    autoconf \
+    libtool \
+    libsodium-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libarchive-dev \
+    libxml2-dev \
+    libudunits2-dev \
+    libabsl-dev \
+    libgdal-dev \
+    libgeos-dev \
+    libproj-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install necessary R packages
+RUN R -e "install.packages('plumber', repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages(c('dplyr', 'jsonlite', 'logger', 'remotes'))"
+RUN R -e "remotes::install_github('KWB-R/kwb.rabimo@webtool_v2.1')"
+
+# Copy the R scripts into the container
+COPY endpoints_bgi.R .
+
+# Expose the port that Plumber will run on
+EXPOSE 8000
+
+# Run Plumber
+ENTRYPOINT ["Rscript", "-e", "library(plumber); plumb('endpoints_bgi.R')$run(host = '0.0.0.0', port = 8000)"]
