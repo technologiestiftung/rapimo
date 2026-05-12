@@ -27,6 +27,8 @@ RUN apt-get update && \
 # Install necessary R packages
 RUN R -e "install.packages('plumber', repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages(c('dplyr', 'jsonlite', 'logger', 'remotes'))"
+
+# install smartwater here
 RUN R -e "remotes::install_github('KWB-R/kwb.rabimo@webtool_v2.1')"
 
 # Copy the R scripts into the container
