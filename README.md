@@ -45,3 +45,8 @@ docker ps
    - BGI-Planer docs: `https://127.0.0.1:40443/bgi/__docs__/`
 
 Since you're using a self-signed certificate, your browser will likely show a warning about the certificate being untrusted. You can proceed to the site despite the warning for testing purposes.
+
+
+``` 
+docker-compose down && docker-compose up --build -d && docker-compose ps
+```
