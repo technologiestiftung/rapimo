@@ -1,6 +1,6 @@
 library(plumber)
 
-source("endpoints.R")
+mcInt <- plumber::pr("endpoints.R") |>
+  plumber::pr_mount("/bgi", plumber::pr("endpoints_bgi.R"))
 
-mcInt <- pr("endpoints.R")
-pr_run(mcInt)
+plumber::pr_run(mcInt)

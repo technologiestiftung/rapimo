@@ -2,7 +2,7 @@ name: Deploy to Container Registry
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev, play]
   workflow_dispatch:
 
 env:

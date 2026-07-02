@@ -24,6 +24,8 @@ calculateAll <- function() {
   return(rabimo_result)
 }
 
+#* @post /calculate_multiblock
+#* @serializer json
 calculateMultiblock <- function(req) {
   # Convert JSON to dataframe
   input <- fromJSON(req$postBody)

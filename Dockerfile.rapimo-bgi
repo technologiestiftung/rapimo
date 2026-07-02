@@ -1,5 +1,5 @@
 # Use the official R base image
-FROM r-base:4.4.1
+FROM r-base:4.5.3
 
 # Set the working directory in the container
 WORKDIR /app
@@ -27,9 +27,8 @@ RUN apt-get update && \
 # Install necessary R packages
 RUN R -e "install.packages('plumber', repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages(c('dplyr', 'jsonlite', 'logger', 'remotes'))"
-
-# install smartwater here
-RUN R -e "remotes::install_github('KWB-R/kwb.rabimo@webtool_v2.1')"
+RUN R -e "remotes::install_github('kwb-r/kwb.rabimo@intensive-green-roof')"
+RUN R -e "remotes::install_github('KWB-R/kwb.smartwater', upgrade = 'never')"
 
 # Copy the R scripts into the container
 COPY endpoints_bgi.R .
