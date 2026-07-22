@@ -7,29 +7,15 @@ library(plumber)
 #* @apiTitle  Rabimo Result - BGI-Planer
 #* @apiDescription An API That Computes Rabimo Results for the BGI-Planer Tool
 
-# Computes area-weighted means across all blocks for a single water-balance data frame.
-.summarise_water_balance <- function(wb) {
-  total_area <- sum(wb$area)
-  if (total_area == 0) {
-    stop("Total area is 0, cannot compute area-weighted summary.")
-  }
-  list(
-    total_area_m2 = jsonlite::unbox(round(total_area, 3)),
-    runoff        = jsonlite::unbox(round(sum(wb$runoff  * wb$area) / total_area, 3)),
-    infiltr       = jsonlite::unbox(round(sum(wb$infiltr * wb$area) / total_area, 3)),
-    evapor        = jsonlite::unbox(round(sum(wb$evapor  * wb$area) / total_area, 3)),
-    delta         = jsonlite::unbox(round(sum(wb$delta_w * wb$area) / total_area, 1))
-  )
-}
-
 # ── BGI-PLANER ENDPOINTS ─────────────────────────────────────────────────────
 
 #* @post /calculate_multiblock
 #* Calculate water balance for multiple block areas with and without measures
 #* Runs R-ABIMO for a set of block areas in two scenarios: the original state
 #* (no user-defined measures) and a modified state with the provided measures
-#* applied. Returns per-block water balance results for both scenarios, an
-#* area-weighted summary across all blocks, and a runoff reduction statistic.
+#* applied. Returns per-block results under water_balance.status_quo and
+#* water_balance.with_measures, plus statistics with area-weighted summaries,
+#* runoff_reduction_percent, and water_quality_indicators.
 #* @param blocks:[data.frame] Array of R-ABIMO block objects. Each block must
 #*   include fields: code, prec_yr, prec_s, epot_yr, epot_s, district,
 #*   total_area, roof, green_roof, swg_roof, pvd, swg_pvd, srf1_pvd–srf5_pvd,
@@ -73,17 +59,6 @@ calculateMultiblock <- function(req, res) {
   if (!is.null(result$error)) {
     return(result)
   }
-
-  result$summary <- tryCatch(
-    list(
-      original      = .summarise_water_balance(result$water_balance_original),
-      with_measures = .summarise_water_balance(result$water_balance_with_measures)
-    ),
-    error = function(e) {
-      res$status <<- 500
-      list(error = conditionMessage(e))
-    }
-  )
 
   result
 }
