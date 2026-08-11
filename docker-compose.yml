@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   rapimo:
     build:
@@ -7,6 +7,12 @@ services:
     container_name: rapimo
     ports:
       - "127.0.0.1:48000:8000"
+
+  rapimo-bgi:
+    build:
+      context: .
+      dockerfile: Dockerfile.rapimo-bgi
+    container_name: rapimo-bgi
 
   nginx:
     build:
@@ -20,3 +26,4 @@ services:
       - ./ssl:/etc/nginx/ssl
     depends_on:
       - rapimo
+      - rapimo-bgi

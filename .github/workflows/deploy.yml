@@ -2,7 +2,7 @@ name: Deploy to Container Registry
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev, play]
   workflow_dispatch:
 
 env:
@@ -31,7 +31,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
+      - name: Extract Rapimo metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -40,7 +40,7 @@ jobs:
             type=ref,event=branch
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push Docker image
+      - name: Build and push Rapimo Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -49,5 +49,26 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Extract BGI metadata
+        id: meta-bgi
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-bgi
+          tags: |
+            type=ref,event=branch
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push BGI Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.rapimo-bgi
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta-bgi.outputs.tags }}
+          labels: ${{ steps.meta-bgi.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
