@@ -1,0 +1,10 @@
+smartwater
+kwb.smartwater
+.dockerignore
+ssl/*
+.git
+
+docs.md
+test_input.json
+test_output.json
+test_payload.json
