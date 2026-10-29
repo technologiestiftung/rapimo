@@ -11,6 +11,7 @@ RUN apt-get update && \
     automake \
     autoconf \
     libtool \
+    cmake \
     libsodium-dev \
     libssl-dev \
     libcurl4-openssl-dev \
@@ -28,7 +29,8 @@ RUN apt-get update && \
 RUN R -e "install.packages('plumber', repos='http://cran.rstudio.com/')"
 RUN R -e "install.packages(c('dplyr', 'jsonlite', 'logger', 'remotes'))"
 RUN R -e "remotes::install_github('kwb-r/kwb.rabimo@v2.2.0')"
-RUN R -e "remotes::install_github('KWB-R/kwb.smartwater', upgrade = 'never')"
+RUN R -e "remotes::install_github('kwb-r/kwb.smartwater@v0.5.0', upgrade = 'never')"
+RUN R -e "for (p in c('plumber', 'dplyr', 'jsonlite', 'logger', 'kwb.rabimo', 'kwb.smartwater')) if (!requireNamespace(p, quietly = TRUE)) stop('package missing: ', p)"
 
 # Copy the R scripts into the container
 COPY endpoints_bgi.R .
